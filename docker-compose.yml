@@ -1,0 +1,8 @@
+version: '2'
+services:
+  nanopub:
+    build: .
+#   image: nanopub/http
+    restart: unless-stopped
+    ports:
+      - 4800:4800

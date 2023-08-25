@@ -1,0 +1,5 @@
+/target
+/scratch
+/classpath.txt
+*.log
+/docker-compose.override.yml
