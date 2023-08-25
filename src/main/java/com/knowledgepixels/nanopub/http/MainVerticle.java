@@ -57,6 +57,7 @@ public class MainVerticle extends AbstractVerticle {
 							System.err.println("TRANSFORMED:\n\n" + NanopubUtils.writeToString(transformedNp, RDFFormat.TRIG));
 							PublishNanopub.publish(transformedNp);
 							System.err.println("PUBLISHED: " + transformedNp.getUri());
+							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/html").end(transformedNp.getUri().stringValue());
 						} catch (MalformedNanopubException | SignatureException | NoSuchAlgorithmException | InvalidKeySpecException | IOException | InvalidKeyException | TrustyUriException ex) {
 							req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST)
 								.setStatusMessage(Arrays.toString(ex.getStackTrace()))
@@ -64,9 +65,6 @@ public class MainVerticle extends AbstractVerticle {
 							ex.printStackTrace();
 							return;
 						};
-						req.response()
-							.setStatusCode(HttpStatus.SC_OK)
-							.end();
 					});
 				} else {
 					throw new RuntimeException("Unknown request path: " + req.path());
