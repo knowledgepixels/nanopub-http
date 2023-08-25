@@ -6,3 +6,6 @@ services:
     restart: unless-stopped
     ports:
       - 4800:4800
+    volumes:
+      - ~/.nanopub:/root/.nanopub
+      - .:/local
