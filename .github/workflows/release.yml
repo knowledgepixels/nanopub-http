@@ -1,5 +1,3 @@
-name: "release"
-
 on:
   push:
     tags:
@@ -18,10 +16,6 @@ jobs:
           java-version: 17
       - name: Set envirnoment variable
         run: echo "NANOPUB_HTTP_VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" pom.xml)" >> $GITHUB_ENV
-
-      - name: Build
-        run: mvn clean install
-
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
