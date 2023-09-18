@@ -13,12 +13,11 @@ COPY src src
 
 RUN mvn install -o && \
     mkdir $APP_DIR && \
-    mv target/nanopub-http-*-SNAPSHOT-fat.jar $APP_DIR/nanopub-http.jar && \
+    mv target/nanopub-http-*-fat.jar $APP_DIR/nanopub-http.jar && \
     rm -rf $TMP_DIR
 
 WORKDIR $APP_DIR
 
-EXPOSE 9300
-EXPOSE 9393
+EXPOSE 4800
 
 ENTRYPOINT ["java","-jar","nanopub-http.jar"]
