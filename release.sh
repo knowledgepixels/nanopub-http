@@ -28,10 +28,9 @@ if [ -z $1 ] || [[ "$1" != "-" ]]; then
 fi
 
 git update-index --refresh -q || true
-LOCALCHANGES=0
-git diff-index --quiet HEAD -- || LOCALCHANGES=1
+git diff-index --quiet HEAD -- || LOCAL_CHANGES=1
 
-if $LOCAL_CHANGES; then
+if [[ "$LOCAL_CHANGES" == 1 ]]; then
   echo "ERROR: Uncommitted local changes"
   exit 1
 fi
