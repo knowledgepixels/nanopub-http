@@ -2,8 +2,7 @@
 
 ## Update Dependencies
 
-    $ mvn versions:use-latest-versions
-    $ mvn versions:update-properties
+    $ mvn versions:use-latest-versions && mvn versions:update-properties
 
 ## Manual POST Request
 
