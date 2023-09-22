@@ -82,7 +82,7 @@ public class MainVerticle extends AbstractVerticle {
 							TransformContext c = new TransformContext(SignatureAlgorithm.RSA, keys, signer, false, false);
 							np = nc.finalizeNanopub();
 							Nanopub transformedNp = SignNanopub.signAndTransform(np, c);
-							System.err.println("TRANSFORMED:\n\n" + NanopubUtils.writeToString(transformedNp, RDFFormat.TRIG));
+							//System.err.println("TRANSFORMED:\n\n" + NanopubUtils.writeToString(transformedNp, RDFFormat.TRIG));
 							if (req.getParam("server-url") == null) {
 								PublishNanopub.publish(transformedNp);
 							} else {
