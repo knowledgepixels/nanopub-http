@@ -1,5 +1,6 @@
 package com.knowledgepixels.nanopub.http;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,7 +8,13 @@ import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.util.Arrays;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -27,6 +34,7 @@ import org.nanopub.extra.server.PublishNanopub;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.ext.web.handler.HttpException;
 import net.trustyuri.TrustyUriUtils;
 
 public class MainVerticle extends AbstractVerticle {
@@ -75,7 +83,11 @@ public class MainVerticle extends AbstractVerticle {
 							np = nc.finalizeNanopub();
 							Nanopub transformedNp = SignNanopub.signAndTransform(np, c);
 							System.err.println("TRANSFORMED:\n\n" + NanopubUtils.writeToString(transformedNp, RDFFormat.TRIG));
-							PublishNanopub.publish(transformedNp);
+							if (req.getParam("server-url") == null) {
+								PublishNanopub.publish(transformedNp);
+							} else {
+								publishToServer(transformedNp, req.getParam("server-url"));
+							}
 							System.err.println("PUBLISHED: " + transformedNp.getUri());
 							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/plain").end(transformedNp.getUri().stringValue() + "\n");
 						} catch (Exception ex) {
@@ -120,6 +132,20 @@ public class MainVerticle extends AbstractVerticle {
 		for (Statement st : np.getProvenance()) nc.addProvenanceStatement(st.getSubject(), st.getPredicate(), st.getObject());
 		for (Statement st : np.getPubinfo()) nc.addPubinfoStatement(st.getSubject(), st.getPredicate(), st.getObject());
 		return nc;
+	}
+
+	// TODO Move this to PublishNanopub class:
+	private static void publishToServer(Nanopub nanopub, String serverUrl) throws IOException {
+		HttpPost post = new HttpPost(serverUrl);
+		String nanopubString = NanopubUtils.writeToString(nanopub, RDFFormat.TRIG);
+		post.setEntity(new StringEntity(nanopubString, "UTF-8"));
+		post.setHeader("Content-Type", RDFFormat.TRIG.getDefaultMIMEType());
+		RequestConfig requestConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
+		HttpResponse response = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build().execute(post);
+		int code = response.getStatusLine().getStatusCode();
+		if (code < 200 || code >= 300) {
+			throw new HttpException(code, response.getStatusLine().getReasonPhrase());
+		}
 	}
 
 	private static final ValueFactory vf = SimpleValueFactory.getInstance();
