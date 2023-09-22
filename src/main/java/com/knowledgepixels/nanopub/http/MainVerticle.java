@@ -1,11 +1,10 @@
 package com.knowledgepixels.nanopub.http;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
 import org.apache.http.HttpStatus;
@@ -13,10 +12,10 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.nanopub.MalformedNanopubException;
 import org.nanopub.Nanopub;
 import org.nanopub.NanopubImpl;
 import org.nanopub.NanopubUtils;
+import org.nanopub.extra.security.MakeKeys;
 import org.nanopub.extra.security.SignNanopub;
 import org.nanopub.extra.security.SignatureAlgorithm;
 import org.nanopub.extra.security.TransformContext;
@@ -24,7 +23,7 @@ import org.nanopub.extra.server.PublishNanopub;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import net.trustyuri.TrustyUriException;
+import net.trustyuri.TrustyUriUtils;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -48,19 +47,25 @@ public class MainVerticle extends AbstractVerticle {
 						final String dataString = payload.toString();
 						try {
 							Nanopub np = new NanopubImpl(dataString, RDFFormat.TRIG);
-							System.err.println("PARAM: " + req.getParam("test"));
-							KeyPair keys = SignNanopub.loadKey("~/.nanopub/id_rsa", SignatureAlgorithm.RSA);
+							if (req.getParam("signer") == null) throw new IllegalArgumentException("HTTP request need 'signer' parameter");
 							IRI signer = vf.createIRI(req.getParam("signer"));
+							String signerHash = TrustyUriUtils.getBase64Hash(signer.stringValue());
+							Path keyFile = Paths.get("/root/local/" + signerHash + "/id_rsa");
+							if (!Files.exists(keyFile)) {
+								MakeKeys.make("/root/local/" + signerHash + "/id", SignatureAlgorithm.RSA);
+								PrintWriter w = new PrintWriter("/root/local/" + signerHash + "/uri.txt");
+								w.println(signer.stringValue());
+								w.close();
+							}
+							KeyPair keys = SignNanopub.loadKey(keyFile.toString(), SignatureAlgorithm.RSA);
 							TransformContext c = new TransformContext(SignatureAlgorithm.RSA, keys, signer, false, false);
 							Nanopub transformedNp = SignNanopub.signAndTransform(np, c);
 							System.err.println("TRANSFORMED:\n\n" + NanopubUtils.writeToString(transformedNp, RDFFormat.TRIG));
 							PublishNanopub.publish(transformedNp);
 							System.err.println("PUBLISHED: " + transformedNp.getUri());
-							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/plain").end(transformedNp.getUri().stringValue());
-						} catch (MalformedNanopubException | SignatureException | NoSuchAlgorithmException | InvalidKeySpecException | IOException | InvalidKeyException | TrustyUriException ex) {
-							req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST)
-								.setStatusMessage(Arrays.toString(ex.getStackTrace()))
-								.end();
+							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/plain").end(transformedNp.getUri().stringValue() + "\n");
+						} catch (Exception ex) {
+							req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST).setStatusMessage(ex.getMessage()).end();
 							ex.printStackTrace();
 							return;
 						};
