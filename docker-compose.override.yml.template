@@ -1,0 +1,13 @@
+# To override the docker-compose configuration, make a copy of this file and name it
+# "docker-compose.override.yml", which will be ignored by version control.
+
+version: '2'
+services:
+  nanopub:
+    restart: unless-stopped
+    ports:
+      - 4800:4800  # Adjust port if needed (left side of colon)
+    volumes:
+      - ./local:/root/local  # You can set your own directory here (replace "./local" left of colon)
+#   environment:
+#     - NANOPUB-DEFAULT-SIGNER=http://example.com/example-user  # You can set a default signer (= user or tool) here

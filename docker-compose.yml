@@ -1,8 +1,11 @@
+# Do not change this file, but instead use docker-compose.override.yml (see docker-compose.override.yml.template).
+# This will prevent conflicts when updating to the latest version from GitHub.
+
 version: '2'
 services:
   nanopub:
-    build: .
-#   image: nanopub/http
+#   build: .
+    image: nanopub/http
     restart: unless-stopped
     ports:
       - 4800:4800

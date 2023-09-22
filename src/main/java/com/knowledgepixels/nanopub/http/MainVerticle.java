@@ -9,12 +9,16 @@ import java.util.Arrays;
 
 import org.apache.http.HttpStatus;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.nanopub.Nanopub;
+import org.nanopub.NanopubCreator;
 import org.nanopub.NanopubImpl;
 import org.nanopub.NanopubUtils;
+import org.nanopub.SimpleTimestampPattern;
 import org.nanopub.extra.security.MakeKeys;
 import org.nanopub.extra.security.SignNanopub;
 import org.nanopub.extra.security.SignatureAlgorithm;
@@ -28,6 +32,7 @@ import net.trustyuri.TrustyUriUtils;
 public class MainVerticle extends AbstractVerticle {
 
 	private boolean serverStarted = false;
+	private IRI defaultSigner;
 
 	private boolean allServersStarted() {
 		return serverStarted;
@@ -47,8 +52,16 @@ public class MainVerticle extends AbstractVerticle {
 						final String dataString = payload.toString();
 						try {
 							Nanopub np = new NanopubImpl(dataString, RDFFormat.TRIG);
-							if (req.getParam("signer") == null) throw new IllegalArgumentException("HTTP request need 'signer' parameter");
-							IRI signer = vf.createIRI(req.getParam("signer"));
+							NanopubCreator nc = getNanopubCreator(np);
+							IRI signer;
+							if (req.getParam("signer") == null) {
+								if (getDefaultSigner() == null) throw new IllegalArgumentException("Neither NANOPUB-DEFAULT-SIGNER environment variable nor 'signer' HTTP parameter found");
+								signer = getDefaultSigner();
+							} else {
+								signer = vf.createIRI(req.getParam("signer"));
+							}
+							nc.addPubinfoStatement(DCTERMS.CREATOR, signer);
+							if (SimpleTimestampPattern.getCreationTime(np) == null) nc.addTimestampNow();
 							String signerHash = TrustyUriUtils.getBase64Hash(signer.stringValue());
 							Path keyFile = Paths.get("/root/local/" + signerHash + "/id_rsa");
 							if (!Files.exists(keyFile)) {
@@ -59,6 +72,7 @@ public class MainVerticle extends AbstractVerticle {
 							}
 							KeyPair keys = SignNanopub.loadKey(keyFile.toString(), SignatureAlgorithm.RSA);
 							TransformContext c = new TransformContext(SignatureAlgorithm.RSA, keys, signer, false, false);
+							np = nc.finalizeNanopub();
 							Nanopub transformedNp = SignNanopub.signAndTransform(np, c);
 							System.err.println("TRANSFORMED:\n\n" + NanopubUtils.writeToString(transformedNp, RDFFormat.TRIG));
 							PublishNanopub.publish(transformedNp);
@@ -87,6 +101,25 @@ public class MainVerticle extends AbstractVerticle {
 				startPromise.fail(http.cause());
 			}
 		});
+	}
+
+	private IRI getDefaultSigner() {
+		if (defaultSigner == null && System.getenv("NANOPUB-DEFAULT-SIGNER") != null) {
+			defaultSigner = vf.createIRI(System.getenv("NANOPUB-DEFAULT-SIGNER"));
+		}
+		return defaultSigner;
+	}
+
+	// TODO Move this to NanopubCreator class:
+	private static NanopubCreator getNanopubCreator(Nanopub np) {
+		NanopubCreator nc = new NanopubCreator(np.getUri());
+		nc.setAssertionUri(np.getAssertionUri());
+		nc.setProvenanceUri(np.getProvenanceUri());
+		nc.setPubinfoUri(np.getPubinfoUri());
+		for (Statement st : np.getAssertion()) nc.addAssertionStatements(st);
+		for (Statement st : np.getProvenance()) nc.addProvenanceStatement(st.getSubject(), st.getPredicate(), st.getObject());
+		for (Statement st : np.getPubinfo()) nc.addPubinfoStatement(st.getSubject(), st.getPredicate(), st.getObject());
+		return nc;
 	}
 
 	private static final ValueFactory vf = SimpleValueFactory.getInstance();
