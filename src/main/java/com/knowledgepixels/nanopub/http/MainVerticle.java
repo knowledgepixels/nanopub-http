@@ -49,7 +49,6 @@ public class MainVerticle extends AbstractVerticle {
 						try {
 							Nanopub np = new NanopubImpl(dataString, RDFFormat.TRIG);
 							System.err.println("PARAM: " + req.getParam("test"));
-							// TODO: sign, transform, and publish
 							KeyPair keys = SignNanopub.loadKey("~/.nanopub/id_rsa", SignatureAlgorithm.RSA);
 							IRI signer = vf.createIRI(req.getParam("signer"));
 							TransformContext c = new TransformContext(SignatureAlgorithm.RSA, keys, signer, false, false);
@@ -57,7 +56,7 @@ public class MainVerticle extends AbstractVerticle {
 							System.err.println("TRANSFORMED:\n\n" + NanopubUtils.writeToString(transformedNp, RDFFormat.TRIG));
 							PublishNanopub.publish(transformedNp);
 							System.err.println("PUBLISHED: " + transformedNp.getUri());
-							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/html").end(transformedNp.getUri().stringValue());
+							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/plain").end(transformedNp.getUri().stringValue());
 						} catch (MalformedNanopubException | SignatureException | NoSuchAlgorithmException | InvalidKeySpecException | IOException | InvalidKeyException | TrustyUriException ex) {
 							req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST)
 								.setStatusMessage(Arrays.toString(ex.getStackTrace()))
