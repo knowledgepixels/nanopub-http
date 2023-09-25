@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyPair;
-import java.util.Arrays;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -21,6 +20,7 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 import org.nanopub.Nanopub;
 import org.nanopub.NanopubCreator;
 import org.nanopub.NanopubImpl;
@@ -59,7 +59,8 @@ public class MainVerticle extends AbstractVerticle {
 					req.endHandler(handler -> {
 						final String dataString = payload.toString();
 						try {
-							Nanopub np = new NanopubImpl(dataString, RDFFormat.TRIG);
+							RDFFormat format = Rio.getParserFormatForMIMEType(req.getHeader("Content-Type")).orElse(RDFFormat.TRIG);
+							Nanopub np = new NanopubImpl(dataString, format);
 							NanopubCreator nc = getNanopubCreator(np);
 							IRI signer;
 							if (req.getParam("signer") == null) {
@@ -91,18 +92,16 @@ public class MainVerticle extends AbstractVerticle {
 							System.err.println("PUBLISHED: " + transformedNp.getUri());
 							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/plain").end(transformedNp.getUri().stringValue() + "\n");
 						} catch (Exception ex) {
-							req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST).setStatusMessage(ex.getMessage()).end();
+							req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST).setStatusMessage(ex.getMessage()).end("Error: " + ex.getMessage() + "\n");
 							ex.printStackTrace();
-							return;
 						};
 					});
 				} else {
 					throw new RuntimeException("Unknown request path: " + req.path());
 				}
 			} catch (Exception ex) {
-				req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST)
-					.setStatusMessage(Arrays.toString(ex.getStackTrace()))
-					.end();
+				req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST).setStatusMessage(ex.getMessage()).end("Error: " + ex.getMessage() + "\n");
+				ex.printStackTrace();
 			}
 		}).listen(4800, http -> {
 			if (http.succeeded()) {
