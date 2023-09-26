@@ -32,7 +32,9 @@ You can also find earlier versions on [Docker Hub](https://hub.docker.com/r/nano
 
 To be used with this service, the nanopublications need to comply with the [Nanopublication Guidelines](https://nanopub.net/guidelines/working_draft/).
 They are based on [RDF 1.1](https://www.w3.org/TR/rdf11-concepts/) and can be expressed in the RDF notations that support graphs/context,
-such as [TriG](https://www.w3.org/TR/trig/). See the [examples](examples/) for further information.
+such as [TriG](https://www.w3.org/TR/trig/).
+
+See the [general template](examples/general-template.trig) and the other [examples](examples/) for more detailed information.
 
 
 ## Signing and Publishing

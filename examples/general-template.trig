@@ -90,6 +90,9 @@
 
 }
 
+
+# PROVENANCE
+
 :provenance {
 
     # The provenance part refers to the assertion gives information about its origin. Therefore,
@@ -111,14 +114,19 @@
 
 }
 
+
+# PUBLICATION INFO
+
 :pubinfo {
 
     # The publication info part provides metadata and provenance information for the
     # nanopublication as a whole.
 
-    # It is strongyl recommended to specify one of CC0, CC BY, or CC BY-SA as license:
+    # It is strongly recommended to specify one of CC BY, CC0, or CC BY-SA as license:
 
     : dct:license <https://creativecommons.org/licenses/by/4.0/> .
+    # : dct:license <https://creativecommons.org/publicdomain/zero/1.0/> .
+    # : dct:license <https://creativecommons.org/licenses/by-sa/4.0/> .
 
     # Specifying a label for your nanopublication is good practice and improves its findability:
 
@@ -131,6 +139,11 @@
     # otherwise remove it:
 
     : a npx:ExampleNanopub .
+
+    # It is recommended to add here a nanopublication type of your own, to allow for easy
+    # filtering later on:
+
+    : a <https://yourdomain.com/terms/MyNanopubType> .
 
     # The signer of the nanopublication will be added automatically, but you might want to
     # specify further creators of this nanopublication (these can be tools and/or people):
@@ -147,5 +160,14 @@
     # Nanopub HTTP, but you can prevent this by providing a timestamp here:
 
     # : dct:created "2023-09-26T13:42:18.966+02:00"^^xsd:dateTime .
+
+    # Use a triple like this one to state that this nanopublication is a newer version of
+    # an existing one:
+
+    # : npx:supersedes <https://w3id.org/np/URI-OF-NANOPUB-TO-BE-SUPERSEDED> .
+
+    # Most tools will only treat such supersedes-relations as valid if both nanopublications
+    # are signed with the same key pair, in which case these tools typically only show the
+    # latest version.
 
 }
