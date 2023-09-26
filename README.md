@@ -36,6 +36,10 @@ such as [TriG](https://www.w3.org/TR/trig/).
 
 See the [general template](examples/general-template.trig) and the other [examples](examples/) for more detailed information.
 
+Nanopublications are immutable and their publication cannot be undone. See the part about "superseding" at the bottom of
+the [general template](examples/general-template.trig) and the [retractopm template](examples/retraction-template.trig) on how to declare new versions and
+retractions.
+
 
 ## Signing and Publishing
 

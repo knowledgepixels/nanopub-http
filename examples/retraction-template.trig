@@ -1,0 +1,43 @@
+# RETRACTION NANOPUBLICATION TEMPLATE
+#
+# With nanopublications like the one described here, published nanopublications can be marked as
+# retracted, which will thereby be ignored and hidden in most circumstances.
+#
+# Such a retraction should be signed with the same key pair as the nanopublication to be retracted,
+# as otherwise the tools cannot easily figure out whether the retraction is genuine.
+
+# Prefixes and head graph don't need to be changed:
+
+@prefix : <http://purl.org/nanopub/temp/temp-nanopub-id/> .
+@prefix np: <http://www.nanopub.org/nschema#> .
+@prefix npx: <http://purl.org/nanopub/x/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix orcid: <https://orcid.org/> .
+
+:Head {
+    : a np:Nanopublication .
+    : np:hasAssertion :assertion .
+    : np:hasProvenance :provenance .
+    : np:hasPublicationInfo :pubinfo .
+}
+
+# Below, orcid:0000-0000-0000-0000 should be replaced with the identifier of the user doing the
+# retraction, and https://w3id.org/np/URI-OF-NANOPUB-TO-BE-RETRACTED should be replaced with the
+# identifier of the nanopublication to be retracted.
+
+:assertion {
+    orcid:0000-0000-0000-0000 npx:retracts <https://w3id.org/np/URI-OF-NANOPUB-TO-BE-RETRACTED> .
+}
+
+:provenance {
+    :assertion prov:wasAttributedTo orcid:0000-0000-0000-0000 .
+}
+
+:pubinfo {
+    : rdfs:label "Retraction" .
+    : dct:license <https://creativecommons.org/publicdomain/zero/1.0/> .
+    : dct:creator orcid:0000-0000-0000-0000 .
+}
