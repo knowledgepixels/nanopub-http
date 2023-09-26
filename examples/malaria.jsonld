@@ -1,0 +1,41 @@
+[ {
+  "@graph" : [ {
+    "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/",
+    "@type" : [ "http://www.nanopub.org/nschema#Nanopublication" ],
+    "http://www.nanopub.org/nschema#hasAssertion" : [ {
+      "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/assertion"
+    } ],
+    "http://www.nanopub.org/nschema#hasProvenance" : [ {
+      "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/provenance"
+    } ],
+    "http://www.nanopub.org/nschema#hasPublicationInfo" : [ {
+      "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/pubinfo"
+    } ]
+  } ],
+  "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/Head"
+}, {
+  "@graph" : [ {
+    "@id" : "http://example.com/mosquito",
+    "http://example.com/transmits" : [ {
+      "@id" : "http://example.com/malaria"
+    } ]
+  } ],
+  "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/assertion"
+}, {
+  "@graph" : [ {
+    "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/assertion",
+    "http://www.w3.org/ns/prov#wasDerivedFrom" : [ {
+      "@id" : "http://dx.doi.org/10.3233/ISU-2010-0613"
+    } ]
+  } ],
+  "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/provenance"
+}, {
+  "@graph" : [ {
+    "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/",
+    "@type" : [ "http://purl.org/nanopub/x/ExampleNanopub" ],
+    "http://purl.org/dc/terms/license" : [ {
+      "@id" : "https://creativecommons.org/licenses/by/4.0/"
+    } ]
+  } ],
+  "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/pubinfo"
+} ]

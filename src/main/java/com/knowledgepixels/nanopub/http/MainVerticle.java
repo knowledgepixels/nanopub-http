@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 
 import org.apache.http.HttpResponse;
@@ -21,16 +22,20 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.nanopub.MalformedNanopubException;
 import org.nanopub.Nanopub;
 import org.nanopub.NanopubCreator;
 import org.nanopub.NanopubImpl;
 import org.nanopub.NanopubUtils;
 import org.nanopub.SimpleTimestampPattern;
 import org.nanopub.extra.security.MakeKeys;
+import org.nanopub.extra.security.MalformedCryptoElementException;
 import org.nanopub.extra.security.SignNanopub;
 import org.nanopub.extra.security.SignatureAlgorithm;
+import org.nanopub.extra.security.SignatureUtils;
 import org.nanopub.extra.security.TransformContext;
 import org.nanopub.extra.server.PublishNanopub;
+import org.nanopub.trusty.TrustyNanopubUtils;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -61,36 +66,44 @@ public class MainVerticle extends AbstractVerticle {
 						try {
 							RDFFormat format = Rio.getParserFormatForMIMEType(req.getHeader("Content-Type")).orElse(RDFFormat.TRIG);
 							Nanopub np = new NanopubImpl(dataString, format);
-							NanopubCreator nc = getNanopubCreator(np);
-							IRI signer;
-							if (req.getParam("signer") == null) {
-								if (getDefaultSigner() == null) throw new IllegalArgumentException("Neither NANOPUB-DEFAULT-SIGNER environment variable nor 'signer' HTTP parameter found");
-								signer = getDefaultSigner();
-							} else {
-								signer = vf.createIRI(req.getParam("signer"));
+
+							boolean isTrusty = TrustyNanopubUtils.isValidTrustyNanopub(np);
+							boolean autoSign = !isTrusty && !SignatureUtils.seemsToHaveSignature(np);
+							if (hasInvalidSignature(np)) {
+								throw new MalformedNanopubException("nanopublication has invalid signature");
 							}
-							nc.addPubinfoStatement(DCTERMS.CREATOR, signer);
-							if (SimpleTimestampPattern.getCreationTime(np) == null) nc.addTimestampNow();
-							String signerHash = TrustyUriUtils.getBase64Hash(signer.stringValue());
-							Path keyFile = Paths.get("/root/local/" + signerHash + "/id_rsa");
-							if (!Files.exists(keyFile)) {
-								MakeKeys.make("/root/local/" + signerHash + "/id", SignatureAlgorithm.RSA);
-								PrintWriter w = new PrintWriter("/root/local/" + signerHash + "/uri.txt");
-								w.println(signer.stringValue());
-								w.close();
+							if (autoSign) {
+								NanopubCreator nc = getNanopubCreator(np);
+								if (SimpleTimestampPattern.getCreationTime(np) == null) nc.addTimestampNow();
+								IRI signer;
+								if (req.getParam("signer") == null) {
+									if (getDefaultSigner() == null) throw new IllegalArgumentException("Neither NANOPUB-DEFAULT-SIGNER environment variable nor 'signer' HTTP parameter found");
+									signer = getDefaultSigner();
+								} else {
+									signer = vf.createIRI(req.getParam("signer"));
+								}
+								nc.addPubinfoStatement(DCTERMS.CREATOR, signer);
+								String signerHash = TrustyUriUtils.getBase64Hash(signer.stringValue());
+								Path keyFile = Paths.get("/root/local/" + signerHash + "/id_rsa");
+								if (!Files.exists(keyFile)) {
+									MakeKeys.make("/root/local/" + signerHash + "/id", SignatureAlgorithm.RSA);
+									PrintWriter w = new PrintWriter("/root/local/" + signerHash + "/uri.txt");
+									w.println(signer.stringValue());
+									w.close();
+								}
+								KeyPair keys = SignNanopub.loadKey(keyFile.toString(), SignatureAlgorithm.RSA);
+								TransformContext c = new TransformContext(SignatureAlgorithm.RSA, keys, signer, false, false);
+								np = nc.finalizeNanopub();
+								np = SignNanopub.signAndTransform(np, c);
 							}
-							KeyPair keys = SignNanopub.loadKey(keyFile.toString(), SignatureAlgorithm.RSA);
-							TransformContext c = new TransformContext(SignatureAlgorithm.RSA, keys, signer, false, false);
-							np = nc.finalizeNanopub();
-							Nanopub transformedNp = SignNanopub.signAndTransform(np, c);
-							//System.err.println("TRANSFORMED:\n\n" + NanopubUtils.writeToString(transformedNp, RDFFormat.TRIG));
+
 							if (req.getParam("server-url") == null) {
-								PublishNanopub.publish(transformedNp);
+								PublishNanopub.publish(np);
 							} else {
-								publishToServer(transformedNp, req.getParam("server-url"));
+								publishToServer(np, req.getParam("server-url"));
 							}
-							System.err.println("PUBLISHED: " + transformedNp.getUri());
-							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/plain").end(transformedNp.getUri().stringValue() + "\n");
+							System.err.println("PUBLISHED: " + np.getUri());
+							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/plain").end(np.getUri().stringValue() + "\n");
 						} catch (Exception ex) {
 							req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST).setStatusMessage(ex.getMessage()).end("Error: " + ex.getMessage() + "\n");
 							ex.printStackTrace();
@@ -144,6 +157,17 @@ public class MainVerticle extends AbstractVerticle {
 		int code = response.getStatusLine().getStatusCode();
 		if (code < 200 || code >= 300) {
 			throw new HttpException(code, response.getStatusLine().getReasonPhrase());
+		}
+	}
+
+	// TODO Move this to SignatureUtils class:
+	private static boolean hasInvalidSignature(Nanopub np) {
+		if (!SignatureUtils.seemsToHaveSignature(np)) return false;
+		try {
+			return !SignatureUtils.hasValidSignature(SignatureUtils.getSignatureElement(np));
+		} catch (GeneralSecurityException | MalformedCryptoElementException ex) {
+			ex.printStackTrace();
+			return true;
 		}
 	}
 

@@ -1,0 +1,29 @@
+@prefix : <http://purl.org/nanopub/temp/temp-nanopub-id/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix opm: <http://purl.org/net/opmv/ns#> .
+@prefix pav: <http://purl.org/pav/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix np: <http://www.nanopub.org/nschema#> .
+@prefix npx: <http://purl.org/nanopub/x/> .
+@prefix ex: <http://example.com/> .
+
+:Head {
+    : a np:Nanopublication .
+    : np:hasAssertion :assertion .
+    : np:hasProvenance :provenance .
+    : np:hasPublicationInfo :pubinfo .
+}
+
+:assertion {
+    ex:mosquito ex:transmits ex:malaria .
+}
+
+:provenance {
+    :assertion prov:wasDerivedFrom <http://dx.doi.org/10.3233/ISU-2010-0613> .
+}
+
+:pubinfo {
+    : dct:license <https://creativecommons.org/licenses/by/4.0/> .
+    : a npx:ExampleNanopub .
+}
