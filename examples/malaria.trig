@@ -1,8 +1,7 @@
 @prefix : <http://purl.org/nanopub/temp/temp-nanopub-id/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dct: <http://purl.org/dc/terms/> .
-@prefix opm: <http://purl.org/net/opmv/ns#> .
-@prefix pav: <http://purl.org/pav/> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix np: <http://www.nanopub.org/nschema#> .
 @prefix npx: <http://purl.org/nanopub/x/> .
@@ -24,6 +23,7 @@
 }
 
 :pubinfo {
+    : rdfs:label "Malaria is transmitted by mosquitoes." .
     : dct:license <https://creativecommons.org/licenses/by/4.0/> .
     : a npx:ExampleNanopub .
 }

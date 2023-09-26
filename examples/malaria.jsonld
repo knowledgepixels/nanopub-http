@@ -35,6 +35,9 @@
     "@type" : [ "http://purl.org/nanopub/x/ExampleNanopub" ],
     "http://purl.org/dc/terms/license" : [ {
       "@id" : "https://creativecommons.org/licenses/by/4.0/"
+    } ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+      "@value" : "Malaria is transmitted by mosquitoes."
     } ]
   } ],
   "@id" : "http://purl.org/nanopub/temp/temp-nanopub-id/pubinfo"

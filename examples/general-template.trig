@@ -1,0 +1,151 @@
+# GENERAL NANOPUBLICATION TEMPLATE
+#
+# This is a general template for nanopublications to be used with the Nanopub HTTP service.
+#
+# This file is in the RDF format TriG. All text after '#', such as this one, are informal comments
+# that are ignored by the software and can be safely removed.
+
+
+# PREFIXES
+
+# It is common practice to use the plain prefix ":" for the URI of the nanopublication as a whole:
+
+@prefix : <http://purl.org/nanopub/temp/temp-nanopub-id/> .
+
+# The above URL pattern is a special one that is transformed to a canonical URI of the form
+# "http://w3id.org/np/RA..." upon signing, where the part "RA..." stands for the Trusty URI
+# artifact code to be generated based on a cryptographic hash.
+
+# This is the main namespace needed to define nanopublications:
+
+@prefix np: <http://www.nanopub.org/nschema#> .
+
+# Additional nanopublication-specific terms are in this namespace:
+
+@prefix npx: <http://purl.org/nanopub/x/> .
+
+# These are other standard prefixes that are needed in most nanopublications:
+
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix pav: <http://purl.org/pav/> .
+@prefix orcid: <https://orcid.org/> .
+
+# Any other prefixes can be added here, e.g. from the domain you want to cover:
+
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# This example namespace can be used for testing, but should not be used for any real/serious
+# nanopublications:
+
+@prefix ex: <http://example.com/> .
+
+
+# HEAD
+
+# It is strongly recommended to leave the head graph exactly like this:
+
+:Head {
+    : a np:Nanopublication .
+    : np:hasAssertion :assertion .
+    : np:hasProvenance :provenance .
+    : np:hasPublicationInfo :pubinfo .
+}
+
+# All four graph URIs (:Head, :assertion, :provenance, and :pubinfo) are extensions of the main
+# nanopublication URI (:). The head graph keeps the other graphs together, and should not
+# contain any additional triples (though technically it can).
+# The content of the other graphs is described below. All of them are mandatory and must not
+# be empty.
+
+
+# ASSERTION
+
+# The assertion graph contains the main content of a nanopublication:
+
+:assertion {
+
+    # The assertion can hold any kind of valid RDF triples:
+
+    :thing ex:relation <https://any-domain.com/another-thing> ;
+        rdfs:label "literal value" .
+
+    # These statements may use the nanopublication URI as namespace such as ":thing". In that
+    # case, the term is minted in the namespace of the nanopublication upon signing. This can
+    # be used, for example, when the nanopublication introduces a new term (see also below).
+
+    # Blank nodes are allowed, but will be replaced by newly minted URIs ("Skolemized") in the
+    # namespace of the nanopublication when signed.
+
+    # The assertion typically holds between one to a few dozen triples. In special occasions, it
+    # makes sense to store up to 1000 triples in a single nanopublication. It should not contain
+    # much more than that though, as the publishing servers impose an overall maximum of 1200
+    # triples per nanopublication (including head, provenance, and publication info).
+
+    # These triples do not need to share the same subject:
+
+    <https://any-domain.com/another-thing> rdfs:label "a label for the other thing" .
+
+}
+
+:provenance {
+
+    # The provenance part refers to the assertion gives information about its origin. Therefore,
+    # this is the provenance of the statement expressed in the assertion (whereas the provenance
+    # of the nanopublication as a whole is expressed in the publication info below).
+
+    # It is common practice to use terms from the PROV Ontology for this part, e.g. to declare that
+    # it was derived from an existing source:
+
+    :assertion prov:wasDerivedFrom <https://example.com/source> .
+    <https://example.com/source> rdfs:label "an optional label of the source" .
+
+    # It can also be attributed to the creator of the assertion:
+
+    :assertion prov:wasAttributedTo orcid:0000-0000-0000-0000 .
+
+    # When there is no further source known, a statement like the above can be the only triple
+    # in this graph.
+
+}
+
+:pubinfo {
+
+    # The publication info part provides metadata and provenance information for the
+    # nanopublication as a whole.
+
+    # It is strongyl recommended to specify one of CC0, CC BY, or CC BY-SA as license:
+
+    : dct:license <https://creativecommons.org/licenses/by/4.0/> .
+
+    # Specifying a label for your nanopublication is good practice and improves its findability:
+
+    : rdfs:label "This label should give a short informal summary of the entire nanopublication." .
+
+    # The label above is often automatically added by the tool through which the nanopublication
+    # is created.
+
+    # If this nanopublication is just an example for testing, you should keep this line, but
+    # otherwise remove it:
+
+    : a npx:ExampleNanopub .
+
+    # The signer of the nanopublication will be added automatically, but you might want to
+    # specify further creators of this nanopublication (these can be tools and/or people):
+
+    : dct:creator orcid:0000-0000-0000-0000 .
+
+    # Sometimes, the person who created the nanopublication differs from the person(s) who
+    # did the creative mental work behind it. In that case, you can specify the person(s) who
+    # contributed the creative mental work as authors:
+    
+    # : pav:authoredBy orcid:0000-0000-0000-0001 .
+
+    # The final nanopublication will automatically receive a timestamp upon signing with
+    # Nanopub HTTP, but you can prevent this by providing a timestamp here:
+
+    # : dct:created "2023-09-26T13:42:18.966+02:00"^^xsd:dateTime .
+
+}

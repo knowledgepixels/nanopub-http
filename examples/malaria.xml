@@ -51,5 +51,10 @@
 			<uri>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</uri>
 			<uri>http://purl.org/nanopub/x/ExampleNanopub</uri>
 		</triple>
+		<triple>
+			<uri>http://purl.org/nanopub/temp/temp-nanopub-id/</uri>
+			<uri>http://www.w3.org/2000/01/rdf-schema#label</uri>
+			<typedLiteral datatype='http://www.w3.org/2001/XMLSchema#string'>Malaria is transmitted by mosquitoes.</typedLiteral>
+		</triple>
 	</graph>
 </TriX>
