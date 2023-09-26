@@ -14,6 +14,20 @@ Clone this repository and then make a local copy of the `override` file:
 Edit `docker-compose.override.yml` to adjust the settings (don't edit `docker-compose.yml`, as it can lead to problems when updating).
 
 
+## Update
+
+To update, pull the latest version from GitHub first:
+
+    $ git pull
+
+Then update and restart the Docker containers (might need `sudo`):
+
+    $ docker compose pull
+    $ docker compose down && docker compose up -d
+
+You can also find earlier versions on [Docker Hub](https://hub.docker.com/r/nanopub/http/tags).
+
+
 ## Nanopublications
 
 To be used with this service, the nanopublications need to comply with the [Nanopublication Guidelines](https://nanopub.net/guidelines/working_draft/).
@@ -28,7 +42,7 @@ Once the Nanopub HTTP service is running, nanopublications can be signed and pub
     $ curl -X POST -d @examples/malaria.trig \
         'http://localhost:4800/publish?signer=http://example.com/example-user'
 
-If the nanopublication is already signed (or is unsigned but has a Trusty URI), the nanopublication is published as is. Otherwise, the nanopublication
+If the nanopublication is already signed (or is unsigned but has a [Trusty URI](https://trustyuri.net/)), the nanopublication is published as is. Otherwise, the nanopublication
 is signed and assigned a Trusty URI and only then published. In that case the following processing takes place:
 
 - A timestamp is added (via `dct:created`) if none is present in the input nanopublication
@@ -50,6 +64,21 @@ The supported RDF format with corresponding Content Types are:
 - TriG (`application/trig`)
 - TriX (`application/trix`)
 - JSON-LD (`application/ld+json`)
+
+
+## Querying
+
+You can query published nanopublications through the services in the nanopublication network, which you can find through these monitors:
+
+- https://monitor.knowledgepixels.com/
+- https://monitor.np.trustyuri.net/
+- https://monitor.petapico.org/
+
+In particular, you can query them via [SPARQL](https://www.w3.org/TR/sparql11-query/) through one of these endpoints:
+
+- https://virtuoso.nps.knowledgepixels.com/sparql
+- https://virtuoso.services.np.trustyuri.net/sparql
+- https://virtuoso.nps.petapico.org/sparql
 
 
 ## Testing
