@@ -14,7 +14,14 @@ Clone this repository and then make a local copy of the `override` file:
 Edit `docker-compose.override.yml` to adjust the settings (don't edit `docker-compose.yml`, as it can lead to problems when updating).
 
 
-## Signing and Publishing Nanopublications
+## Nanopubliations
+
+The nanopublications need to comply with the [Nanopublication Guidelines](https://nanopub.net/guidelines/working_draft/).
+They are based on [RDF 1.1](https://www.w3.org/TR/rdf11-concepts/) and can be expressed in the RDF notations that support graphs/context,
+such as [TriG](https://www.w3.org/TR/trig/). See the [examples](examples/) for further information.
+
+
+## Signing and Publishing
 
 Once the Nanopub HTTP service is running, nanopublications can be signed and published with POST requests like this one:
 
