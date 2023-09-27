@@ -8,13 +8,16 @@
 
 # PREFIXES
 
-# It is common practice to use the plain prefix ":" for the URI of the nanopublication as a whole:
+# It is common practice for such pre-final nanopublications to use the plain prefix ":" for the
+# temporary URI of the nanopublication as a whole:
 
 @prefix : <http://purl.org/nanopub/temp/temp-nanopub-id/> .
 
 # The above URL pattern is a special one that is transformed to a canonical URI of the form
 # "http://w3id.org/np/RA..." upon signing, where the part "RA..." stands for the Trusty URI
 # artifact code to be generated based on a cryptographic hash.
+# If you change it to something like "https://yourdomain.com/nanopub/", the final URIs will
+# have the form "https://yourdomain.com/nanopub/RA...".
 
 # This is the main namespace needed to define nanopublications:
 
@@ -72,6 +75,8 @@
     :thing ex:relation <https://any-domain.com/another-thing> ;
         rdfs:label "literal value" .
 
+    <https://any-domain.com/another-thing> rdfs:label "a label for the other thing" .
+
     # These statements may use the nanopublication URI as namespace such as ":thing". In that
     # case, the term is minted in the namespace of the nanopublication upon signing. This can
     # be used, for example, when the nanopublication introduces a new term (see also below).
@@ -79,14 +84,12 @@
     # Blank nodes are allowed, but will be replaced by newly minted URIs ("Skolemized") in the
     # namespace of the nanopublication when signed.
 
+    # The assertion of a single nanopublication is supposed to hold just one "atomic" statement
+    # or a smalleer set of highly related statements that would be impractical to break apart.
     # The assertion typically holds between one to a few dozen triples. In special occasions, it
     # makes sense to store up to 1000 triples in a single nanopublication. It should not contain
     # much more than that though, as the publishing servers impose an overall maximum of 1200
     # triples per nanopublication (including head, provenance, and publication info).
-
-    # These triples do not need to share the same subject:
-
-    <https://any-domain.com/another-thing> rdfs:label "a label for the other thing" .
 
 }
 
@@ -155,6 +158,12 @@
     # contributed the creative mental work as authors:
     
     # : pav:authoredBy orcid:0000-0000-0000-0001 .
+
+    # If your nanopublication introduces or defines a new term, such as ":thing" in the
+    # assertion above, you can add such a triple here, declaring that the main purpose of
+    # this nanopublication is the introduction and definition of the respective entity:
+
+    # : npx:introduces :thing .
 
     # The final nanopublication will automatically receive a timestamp upon signing with
     # Nanopub HTTP, but you can prevent this by providing a timestamp here:
