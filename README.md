@@ -7,7 +7,7 @@ The focus is currently on the signing and publishing features. The coverage of o
 
 ## Setup
 
-Clone this repository and then make a local copy of the `override` file:
+Clone this repository and then make a local copy of the 'override' file:
 
     $ cp docker-compose.override.yml.template docker-compose.override.yml
 
@@ -48,14 +48,34 @@ Once the Nanopub HTTP service is running, nanopublications can be signed and pub
     $ curl -X POST -d @examples/malaria.trig \
         'http://localhost:4800/publish?signer=http://example.com/example-user'
 
-If the nanopublication is already signed (or is unsigned but has a [Trusty URI](https://trustyuri.net/)), the nanopublication is published as is. Otherwise, the nanopublication
-is signed and assigned a Trusty URI and only then published. In that case the following processing takes place:
+If the nanopublication is already signed (or is unsigned but has a [Trusty URI](https://trustyuri.net/)), the nanopublication is published as is.
+
+Otherwise, the nanopublication is signed and assigned a Trusty URI and only then published.
+If the `signer` argument is not present, the environment variable `NANOPUB-DEFAULT-SIGNER` is read instead, as specified in the docker-compose file.
+The `signer` value is a URI specifying the creator and signer of the nanopublication, which can be a software tool or a person.
+
+Ideally, every user is identified individually (e.g. with an ORCID identifier) and this identifier is used as `signer` argument.
+Like that, each user gets its own key pairs and the resulting nanopublications can easily be filtered by user later on.
+
+Unless the nanopublication is already signed or trusty, this processing takes place:
 
 - A timestamp is added (via `dct:created`) if none is present in the input nanopublication
 - The specified signer is added as a creator (via `dct:creator`) if not already present
 - Temporary nanopublication URIs `http://purl.org/nanopub/temp/...` are transformed into standard ones that will resolve to the nanopublication network: `https://w3id.org/np/...`
-- If the given signer doesn't have a local key pair yet, a new one is created in the local folder `data` (using a hash of the signer URI as subfolder name)
+- If the given signer doesn't have a local key pair yet, a new one is created in the local folder
 - The nanopublication content is signed with the key pair for the given signer
+
+
+## Local Key Pair Files
+
+The cryptographic key pairs used for signing the nanopublications are stored in the local folder `local`.
+For each signer URI, a subfolder in this local folder is created, named with a hash generated from the URI.
+This subfolder contains the public (`id_rsa.pub`) and private (`id_rsa`) keys, and the corresponding signer URI (`uri.txt`).
+
+The `local` folder should be treated with great care.
+It contains the private keys that, if leaked, can be used to publish fake nanopublications in the names of the respective users.
+If these private keys are lost, on the other hand, it makes it harder to publish trusted retractions and new versions of the existing nanopublications signed with the lost keys.
+Key leakage or loss are not fatal, as the nanopublication ecosystem is designed to cope with these scenarios, but should be prevented as much as possible nevertheleess.
 
 
 ## Formats
