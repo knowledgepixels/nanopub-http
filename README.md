@@ -147,10 +147,10 @@ To test the publication of nanopublications without actually publishing them, us
     $ curl -X POST -d @examples/malaria.trig \
         'http://localhost:4800/publish?signer=http://example.com/example-user&server-url=https://np.test.knowledgepixels.com/'
 
-These are the available test servers:
+This is the recommended test servers:
 
 - https://np.test.knowledgepixels.com/
 
-The nanopublications can then be queried from these respective test SPARQL endpoints:
+The nanopublications can then be queried from this test SPARQL endpoint:
 
 - https://virtuoso.test.nps.knowledgepixels.com/sparql
