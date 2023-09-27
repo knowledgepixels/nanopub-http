@@ -106,7 +106,7 @@ In particular, you can query them via [SPARQL](https://www.w3.org/TR/sparql11-qu
 - https://virtuoso.services.np.trustyuri.net/sparql
 - https://virtuoso.nps.petapico.org/sparql
 
-These endpoints have the entire nanopublications with all their four graphs loaded, and  provide you with the full power of the SPARQL language.
+These endpoints have the entire nanopublications with all their four graphs loaded, and provide you with the full power of the SPARQL language.
 As a starting point, the special graph `npa:graph` provides you with the head graph, the public key, and the publication date, as shown in this example query:
 
     prefix np: <http://www.nanopub.org/nschema#>
