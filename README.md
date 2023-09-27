@@ -150,9 +150,7 @@ To test the publication of nanopublications without actually publishing them, us
 These are the available test servers:
 
 - https://np.test.knowledgepixels.com/
-- https://np.test.petapico.org/
 
 The nanopublications can then be queried from these respective test SPARQL endpoints:
 
-- https://virtuoso.test.nps.petapico.org/sparql
 - https://virtuoso.test.nps.knowledgepixels.com/sparql
