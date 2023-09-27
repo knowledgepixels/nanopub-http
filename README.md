@@ -57,7 +57,7 @@ The `signer` value is a URI specifying the creator and signer of the nanopublica
 Ideally, every user is identified individually (e.g. with an ORCID identifier) and this identifier is used as `signer` argument.
 Like that, each user gets its own key pairs and the resulting nanopublications can easily be filtered by user later on.
 
-Unless the nanopublication is already signed or trusty, this processing takes place:
+Unless the nanopublication is already signed or trusty, this processing takes place before publication:
 
 - A timestamp is added (via `dct:created`) if none is present in the input nanopublication
 - The specified signer is added as a creator (via `dct:creator`) if not already present
