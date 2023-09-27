@@ -106,6 +106,39 @@ In particular, you can query them via [SPARQL](https://www.w3.org/TR/sparql11-qu
 - https://virtuoso.services.np.trustyuri.net/sparql
 - https://virtuoso.nps.petapico.org/sparql
 
+These endpoints have the entire nanopublications with all their four graphs loaded, and  provide you with the full power of the SPARQL language.
+As a starting point, the special graph `npa:graph` provides you with the head graph, the public key, and the publication date, as shown in this example query:
+
+    prefix np: <http://www.nanopub.org/nschema#>
+    prefix npx: <http://purl.org/nanopub/x/>
+    prefix npa: <http://purl.org/nanopub/admin/>
+    prefix dct: <http://purl.org/dc/terms/>
+    prefix prov: <http://www.w3.org/ns/prov#>
+    
+    select ?np ?subj ?pred ?obj ?agent ?date where {
+      graph npa:graph {
+        ?np npa:hasHeadGraph ?head .
+        ?np npa:hasValidSignatureForPublicKey ?pubkey .
+        ?np dct:created ?date .
+      }
+      graph ?head {
+        ?np np:hasAssertion ?assertion .
+        ?np np:hasProvenance ?prov .
+        ?np np:hasPublicationInfo ?pubinfo .
+      }
+      graph ?assertion {
+        ?subj ?pred ?obj .
+      }
+      graph ?prov {
+        ?assertion prov:wasAttributedTo ?agent .
+      }
+      graph ?pubinfo {
+        ?np a npx:ExampleNanopub .
+      }
+    }
+    order by desc(?date)
+    limit 100
+
 
 ## Testing
 
