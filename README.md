@@ -158,10 +158,10 @@ The nanopublications can then be queried from this test SPARQL endpoint:
 
 The response to the HTTP request consists of a simple JSON structure, according to this schema:
 
-{
-  "id": "https://w3id.org/np/RA...",
-  "url": "https://.../RA..."
-}
+    {
+      "id": "https://w3id.org/np/RA...",
+      "url": "https://.../RA..."
+    }
 
 The value for "id" is the unique IRI identifier of the nanopublication. This should be used for references, including for pointing to the nanopublication in SPARQL endpoints.
 
