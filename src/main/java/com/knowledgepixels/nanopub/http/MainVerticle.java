@@ -97,13 +97,17 @@ public class MainVerticle extends AbstractVerticle {
 								np = SignNanopub.signAndTransform(np, c);
 							}
 
+							String npId;
 							if (req.getParam("server-url") == null) {
-								PublishNanopub.publish(np);
+								npId = PublishNanopub.publish(np);
 							} else {
-								publishToServer(np, req.getParam("server-url"));
+								String serverUrl = req.getParam("server-url");
+								publishToServer(np, serverUrl);
+								npId = serverUrl + TrustyUriUtils.getArtifactCode(np.getUri().stringValue()); 
 							}
 							System.err.println("PUBLISHED: " + np.getUri());
-							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "text/plain").end(np.getUri().stringValue() + "\n");
+							String responseJson = "{\n  \"id\": \"" + np.getUri().stringValue() + "\",\n  \"url\": \"" + npId + "\"\n}\n";
+							req.response().setStatusCode(HttpStatus.SC_OK).putHeader("content-type", "application/json").end(responseJson);
 						} catch (Exception ex) {
 							req.response().setStatusCode(HttpStatus.SC_BAD_REQUEST).setStatusMessage(ex.getMessage()).end("Error: " + ex.getMessage() + "\n");
 							ex.printStackTrace();

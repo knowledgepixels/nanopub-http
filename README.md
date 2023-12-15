@@ -152,3 +152,22 @@ This is the recommended test servers:
 The nanopublications can then be queried from this test SPARQL endpoint:
 
 - https://virtuoso.test.nps.knowledgepixels.com/sparql
+
+
+## Response
+
+The response to the HTTP request consists of a simple JSON structure, according to this schema:
+
+{
+  "id": "https://w3id.org/np/RA...",
+  "url": "https://.../RA..."
+}
+
+The value for "id" is the unique IRI identifier of the nanopublication. This should be used for references, including for pointing to the nanopublication in SPARQL endpoints.
+
+The value for "url" is the place where the nanopublication was published. The nanopublication is available at that location immediately.
+
+Running an HTTP request against the "id" value will forward to a URL where the nanopublication is served, which might be the one of the "url" value or a different one in the network.
+This forwarding might not work immediately, but can take a few seconds or a minute.
+
+If a testing server is used, forwarding of the "id" value doesn't work, as the nanopublication is not added to the network, but the "url" value points to the test server and does resolve.
