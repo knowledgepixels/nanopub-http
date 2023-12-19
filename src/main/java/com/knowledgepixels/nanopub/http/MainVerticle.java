@@ -102,6 +102,7 @@ public class MainVerticle extends AbstractVerticle {
 								npId = PublishNanopub.publish(np);
 							} else {
 								String serverUrl = req.getParam("server-url");
+								if (!serverUrl.endsWith("/")) serverUrl += "/";
 								publishToServer(np, serverUrl);
 								npId = serverUrl + TrustyUriUtils.getArtifactCode(np.getUri().stringValue()); 
 							}
