@@ -92,7 +92,7 @@ public class MainVerticle extends AbstractVerticle {
 									w.close();
 								}
 								KeyPair keys = SignNanopub.loadKey(keyFile.toString(), SignatureAlgorithm.RSA);
-								TransformContext c = new TransformContext(SignatureAlgorithm.RSA, keys, signer, false, false);
+								TransformContext c = new TransformContext(SignatureAlgorithm.RSA, keys, signer, false, false, true);
 								np = nc.finalizeNanopub();
 								np = SignNanopub.signAndTransform(np, c);
 							}

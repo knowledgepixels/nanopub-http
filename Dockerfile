@@ -1,4 +1,9 @@
-FROM maven:3-openjdk-17
+FROM eclipse-temurin:23-alpine
+
+RUN apk add --no-cache curl
+RUN apk add --no-cache bash
+RUN apk add --no-cache maven
+RUN apk add --no-cache git
 
 ENV APP_DIR /app
 ENV TMP_DIR /tmp

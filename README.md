@@ -101,8 +101,8 @@ You can query published nanopublications through the services in the nanopublica
 
 In particular, you can query them via [SPARQL](https://www.w3.org/TR/sparql11-query/) through one of these endpoints:
 
-- https://virtuoso.nps.knowledgepixels.com/sparql
-- https://virtuoso.services.np.trustyuri.net/sparql
+- https://query.knowledgepixels.com/repo/full
+- https://query.petapico.org/repo/full
 
 These endpoints have the entire nanopublications with all their four graphs loaded, and provide you with the full power of the SPARQL language.
 As a starting point, the special graph `npa:graph` provides you with the head graph, the public key, and the publication date, as shown in this example query:
@@ -143,15 +143,15 @@ As a starting point, the special graph `npa:graph` provides you with the head gr
 To test the publication of nanopublications without actually publishing them, use the 'server-url' argument:
 
     $ curl -X POST -d @examples/malaria.trig \
-        'http://localhost:4800/publish?signer=http://example.com/example-user&server-url=https://np.test.knowledgepixels.com/'
+        'http://localhost:4800/publish?signer=http://example.com/example-user&server-url=https://test.registry.knowledgepixels.com/'
 
-This is the recommended test servers:
+This is the recommended test server:
 
-- https://np.test.knowledgepixels.com/
+- https://test.registry.knowledgepixels.com/
 
 The nanopublications can then be queried from this test SPARQL endpoint:
 
-- https://virtuoso.test.nps.knowledgepixels.com/sparql
+- [NOT YET AVAILABLE; COMING SOON...]
 
 
 ## Response
