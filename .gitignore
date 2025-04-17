@@ -1,7 +1,8 @@
-.classpath
+/.classpath
 /local
 /target
 /scratch
 /classpath.txt
 *.log
 /docker-compose.override.yml
+/dependency-reduced-pom.xml
