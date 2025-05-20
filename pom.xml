@@ -93,7 +93,7 @@
     <dependency>
       <groupId>com.github.Nanopublication</groupId>
       <artifactId>nanopub-java</artifactId>
-      <version>af3c4903da68801b02806ebd202db3c234cc9dc4</version>
+      <version>nanopub-1.75</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -107,9 +107,6 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <release>11</release>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
